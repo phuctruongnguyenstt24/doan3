@@ -11,56 +11,60 @@ function Hero() {
       <div className="hero-content">
         <div className="hero-badge">
           <span className="badge-dot"></span>
-          Decentralized Portfolio
+          Web3 Developer Portfolio
         </div>
-        
+
         <h1 className="hero-title">
-          Manage Your <span>Crypto Portfolio</span>
-          <br />On the Blockchain
+          Build Your <span>Web3 Portfolio</span>
+          <br />on Polygon
         </h1>
-        
+
         <p className="hero-description">
-          Track, analyze, and manage all your digital assets in one place.
-          Fully decentralized, secure, and transparent.
+          Showcase your skills, projects, and professional experience through
+          a modern decentralized portfolio powered by blockchain technology.
         </p>
 
         <div className="hero-actions">
           {!isConnected ? (
-            <button 
+            <button
               className="hero-btn-primary"
               onClick={connect}
               disabled={isConnecting}
             >
               <FaEthereum />
-              {isConnecting ? 'Connecting...' : 'Connect Wallet to Start'}
+              {isConnecting ? 'Connecting...' : 'Connect MetaMask'}
             </button>
           ) : (
             <button className="hero-btn-primary">
               <FaRocket />
-              Go to Dashboard
+              View My Portfolio
             </button>
           )}
-          
+
           <a href="#features" className="hero-btn-secondary">
-            Learn More
+            Explore More
             <span>→</span>
           </a>
         </div>
 
         <div className="hero-stats">
           <div className="stat-item">
-            <span className="stat-number">$2.4B</span>
-            <span className="stat-label">Total Value Locked</span>
+            <span className="stat-number">20+</span>
+            <span className="stat-label">Projects Completed</span>
           </div>
+
           <div className="stat-divider"></div>
+
           <div className="stat-item">
-            <span className="stat-number">150K+</span>
-            <span className="stat-label">Active Users</span>
+            <span className="stat-number">10+</span>
+            <span className="stat-label">Technologies</span>
           </div>
+
           <div className="stat-divider"></div>
+
           <div className="stat-item">
             <span className="stat-number">50+</span>
-            <span className="stat-label">Supported Chains</span>
+            <span className="stat-label">GitHub Repositories</span>
           </div>
         </div>
       </div>
@@ -68,12 +72,14 @@ function Hero() {
       <div className="hero-visual">
         <div className="floating-card card-1">
           <FaChartLine />
-          <span>+24.5%</span>
+          <span>20+ Projects</span>
         </div>
+
         <div className="floating-card card-2">
           <FaShieldAlt />
-          <span>Secure</span>
+          <span>Web3 Ready</span>
         </div>
+
         <div className="orb orb-1"></div>
         <div className="orb orb-2"></div>
         <div className="orb orb-3"></div>

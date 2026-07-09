@@ -1,8 +1,24 @@
 // frontend/src/components/SocialLinks.jsx
-import { FaGithub, FaLinkedin, FaGlobe, FaTwitter, FaYoutube, FaDiscord, FaTelegram } from 'react-icons/fa';
+import {
+    FaGithub,
+    FaLinkedin,
+    FaGlobe,
+    FaTwitter,
+    FaYoutube,
+    FaDiscord,
+    FaTelegram
+} from 'react-icons/fa';
 import './SocialLinks.css';
 
-function SocialLinks({ github, linkedin, website, twitter, youtube, discord, telegram }) {
+function SocialLinks({
+    github,
+    linkedin,
+    website,
+    twitter,
+    youtube,
+    discord,
+    telegram
+}) {
     const links = [
         { icon: FaGithub, url: github, label: 'GitHub', color: '#333' },
         { icon: FaLinkedin, url: linkedin, label: 'LinkedIn', color: '#0A66C2' },
@@ -13,16 +29,22 @@ function SocialLinks({ github, linkedin, website, twitter, youtube, discord, tel
         { icon: FaTelegram, url: telegram, label: 'Telegram', color: '#0088cc' }
     ];
 
-    const validLinks = links.filter(link => link.url && link.url.trim() !== '');
+    const validLinks = links.filter(
+        (link) => link.url && link.url.trim() !== ''
+    );
 
     if (validLinks.length === 0) {
-        return <p className="no-social">No social links added yet</p>;
+        return (
+            <p className="no-social">
+                No social profiles available.
+            </p>
+        );
     }
 
     return (
         <div className="social-links">
             {validLinks.map((link, index) => (
-                <a 
+                <a
                     key={index}
                     href={link.url}
                     target="_blank"

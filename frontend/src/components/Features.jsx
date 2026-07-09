@@ -1,37 +1,38 @@
 // frontend/src/components/Features.jsx
-import { FaWallet, FaChartPie, FaShieldAlt, FaRocket } from 'react-icons/fa'
+import { FaUserTie, FaCode, FaShieldAlt, FaGlobe } from 'react-icons/fa'
 import './Features.css'
 
 function Features() {
   const features = [
     {
-      icon: <FaWallet />,
-      title: 'Multi-Wallet Support',
-      description: 'Connect and manage multiple wallets across different blockchains'
+      icon: <FaUserTie />,
+      title: 'Professional Profile',
+      description: 'Present your education, experience, and achievements in a modern portfolio.'
     },
     {
-      icon: <FaChartPie />,
-      title: 'Portfolio Analytics',
-      description: 'Real-time tracking of your assets with detailed analytics and charts'
+      icon: <FaCode />,
+      title: 'Projects Showcase',
+      description: 'Display your best projects with descriptions, technologies, and live demo links.'
     },
     {
       icon: <FaShieldAlt />,
-      title: 'Secure & Decentralized',
-      description: 'Your data is stored on the blockchain. Full ownership and control'
+      title: 'Web3 Powered',
+      description: 'Securely connect with MetaMask and showcase a decentralized portfolio on Polygon.'
     },
     {
-      icon: <FaRocket />,
-      title: 'Cross-Chain Support',
-      description: 'Support for Ethereum, Polygon, BSC, and more networks'
+      icon: <FaGlobe />,
+      title: 'Responsive Design',
+      description: 'Optimized for desktop, tablet, and mobile devices with a clean user experience.'
     }
   ]
 
   return (
     <section id="features" className="features">
       <div className="features-header">
-        <h2>Why Choose DeFi Portfolio?</h2>
-        <p>Everything you need to manage your digital assets</p>
+        <h2>Why Choose My Portfolio?</h2>
+        <p>Everything you need to showcase your professional journey.</p>
       </div>
+
       <div className="features-grid">
         {features.map((feature, index) => (
           <div className="feature-card" key={index}>

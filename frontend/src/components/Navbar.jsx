@@ -1,7 +1,13 @@
 // frontend/src/components/Navbar.jsx
 import { useWallet } from '../context/WalletContext';
 import { formatAddress } from '../utils/wallet';
-import { FaWallet, FaUser, FaSignOutAlt, FaHome, FaUserCircle } from 'react-icons/fa';
+import {
+    FaWallet,
+    FaUser,
+    FaSignOutAlt,
+    FaHome,
+    FaUserCircle
+} from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
@@ -14,30 +20,40 @@ function Navbar() {
             <div className="nav-container">
                 <Link to="/" className="nav-logo">
                     <img src="/logo.svg" alt="Logo" />
-                    <span>DeFi Portfolio</span>
+                    <span>Web3 Portfolio</span>
                 </Link>
 
                 <div className="nav-links">
-                    <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+                    <Link
+                        to="/"
+                        className={location.pathname === '/' ? 'active' : ''}
+                    >
                         <FaHome /> Home
                     </Link>
+
                     {isConnected && (
-                        <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}>
-                            <FaUserCircle /> Profile
+                        <Link
+                            to="/profile"
+                            className={location.pathname === '/profile' ? 'active' : ''}
+                        >
+                            <FaUserCircle /> My Profile
                         </Link>
                     )}
+
                     <a href="#features">Features</a>
                 </div>
 
                 <div className="nav-wallet">
                     {!isConnected ? (
-                        <button 
+                        <button
                             className="connect-btn"
                             onClick={connect}
                             disabled={isConnecting}
                         >
                             <FaWallet />
-                            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                            {isConnecting
+                                ? 'Connecting...'
+                                : 'Connect MetaMask'}
                         </button>
                     ) : (
                         <div className="wallet-info">
@@ -45,10 +61,11 @@ function Navbar() {
                                 <FaUser />
                                 <span>{formatAddress(wallet.address)}</span>
                             </div>
-                            <button 
+
+                            <button
                                 className="disconnect-btn"
                                 onClick={disconnect}
-                                title="Disconnect"
+                                title="Disconnect Wallet"
                             >
                                 <FaSignOutAlt />
                             </button>
