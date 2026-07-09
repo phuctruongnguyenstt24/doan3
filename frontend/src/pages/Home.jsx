@@ -23,7 +23,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-
+import { useNavigate } from "react-router-dom";
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [account, setAccount] = useState(null);
@@ -33,6 +33,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [isProfileUpload, setIsProfileUpload] = useState(false);
   const [isCvUpload, setIsCvUpload] = useState(false);
+  const navigate = useNavigate();
 
   // Kiểm tra kết nối MetaMask khi component mount
   useEffect(() => {
@@ -142,26 +143,27 @@ const Home = () => {
   };
 
   // Xử lý upload profile
-  const handleProfileUpload = () => {
-    if (!account) {
-      setError('Please connect wallet first!');
-      return;
-    }
-    setIsProfileUpload(true);
-    // Logic upload profile sẽ được thêm sau
-    console.log('Upload profile for:', account);
-  };
+const handleProfileUpload = () => {
+  if (!account) {
+    setError("Please connect wallet first!");
+    return;
+  }
 
+  console.log("Upload profile for:", account);
+
+  navigate("/profile");
+};
   // Xử lý upload CV
-  const handleCvUpload = () => {
+ const handleCvUpload = () => {
     if (!account) {
-      setError('Please connect wallet first!');
-      return;
+        setError("Please connect wallet first!");
+        return;
     }
-    setIsCvUpload(true);
-    // Logic upload CV sẽ được thêm sau
-    console.log('Upload CV for:', account);
-  };
+
+    console.log("Upload CV for:", account);
+
+    navigate("/sendcv");
+};
 
   // Navigation items
   const navItems = [
