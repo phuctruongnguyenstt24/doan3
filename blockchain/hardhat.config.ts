@@ -34,11 +34,18 @@ export default defineConfig({
       chainType: "op",
     },
 
+    sepolia: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("SEPOLIA_RPC_URL"),
+      accounts: [configVariable("PRIVATE_KEY")],
+    },
+
     amoy: {
       type: "http",
       chainType: "l1",
       url: configVariable("SEPOLIA_RPC_URL"),
-            accounts: [configVariable("PRIVATE_KEY")],
+      accounts: [configVariable("PRIVATE_KEY")],
     },
   },
 });

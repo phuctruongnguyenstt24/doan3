@@ -32,12 +32,20 @@ function Navbar() {
                     </Link>
 
                     {isConnected && (
-                        <Link
-                            to="/profile"
-                            className={location.pathname === '/profile' ? 'active' : ''}
-                        >
-                            <FaUserCircle /> My Profile
-                        </Link>
+                        <>
+                            <Link
+                                to="/profile"
+                                className={location.pathname === '/profile' ? 'active' : ''}
+                            >
+                                <FaUserCircle /> My Profile
+                            </Link>
+                            <Link
+                                to="/sendcv"
+                                className={location.pathname === '/sendcv' ? 'active' : ''}
+                            >
+                                <FaUserCircle /> Send CV
+                            </Link>
+                        </>
                     )}
 
                     <a href="#features">Features</a>
