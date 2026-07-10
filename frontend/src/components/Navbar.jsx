@@ -54,7 +54,7 @@ function Navbar() {
                 <div className="nav-wallet">
                     {!isConnected ? (
                         <button
-                            className="connect-btn"
+                            className="connect-btn duration-300 ease-in"
                             onClick={connect}
                             disabled={isConnecting}
                         >

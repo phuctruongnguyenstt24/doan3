@@ -108,3 +108,20 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/*wiggle animation Cho button Khi chua Connect MetaMask*/
+/* 1. Định nghĩa chuyển động wiggle */
+@keyframes wiggle {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); } /* Lắc sang trái 2px */
+  75% { transform: translateX(2px); }  /* Lắc sang phải 2px */
+}
+
+.always-wiggle {
+  display: inline-flex; /* Sử dụng inline-flex để không phá vỡ dòng chảy text */
+  align-items: center;
+  justify-content: center;
+  animation: wiggle 0.25s ease-in-out infinite;
+  transform-origin: center !important; /* Ép buộc giữ tâm xoay ở chính giữa */
+}
+

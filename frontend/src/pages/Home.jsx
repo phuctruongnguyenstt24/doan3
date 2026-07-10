@@ -193,7 +193,7 @@ const handleProfileUpload = () => {
             <div className="flex items-center space-x-2">
               <Shield className="w-8 h-8 text-purple-500" />
               <span className="text-xl font-bold text-white">
-                Block<span className="text-purple-500">Portfolio</span>
+                Block<span className="text-purple-500 color">Portfolio</span>
               </span>
             </div>
 
@@ -272,7 +272,7 @@ const handleProfileUpload = () => {
                 <button
                   onClick={connectWallet}
                   disabled={isConnecting}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 disabled:opacity-50"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 hover:scale-110 hover:shadow-xl always-wiggle"
                 >
                   {isConnecting ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -364,11 +364,12 @@ const handleProfileUpload = () => {
                 and build your decentralized identity on the blockchain.
               </p>
 
+              {/*thêm hover:scale-110 hover:shadow-xl cho button*/}
               <div className="flex flex-wrap gap-4">
                 {!account && (
                   <button
                     onClick={connectWallet}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center space-x-2"
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                   >
                     <Wallet className="w-5 h-5" />
                     <span>Connect Wallet to Start</span>
@@ -378,14 +379,14 @@ const handleProfileUpload = () => {
                   <>
                     <button
                       onClick={handleProfileUpload}
-                      className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 flex items-center space-x-2"
+                      className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                     >
                       <Upload className="w-5 h-5" />
                       <span>Upload Profile</span>
                     </button>
                     <button
                       onClick={handleCvUpload}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center space-x-2"
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                     >
                       <FileText className="w-5 h-5" />
                       <span>Upload CV</span>
@@ -394,7 +395,7 @@ const handleProfileUpload = () => {
                 )}
                 <a
                   href="#portfolio"
-                  className="px-6 py-3 border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-all duration-200 flex items-center space-x-2"
+                  className="px-6 py-3 border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                 >
                   <span>Explore Portfolios</span>
                   <ArrowRight className="w-5 h-5" />
@@ -439,7 +440,7 @@ const handleProfileUpload = () => {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200">
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200 hover:scale-110">
               <Shield className="w-12 h-12 text-purple-400 mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Decentralized</h3>
               <p className="text-gray-400">
@@ -447,7 +448,7 @@ const handleProfileUpload = () => {
               </p>
             </div>
             
-            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200">
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200 hover:scale-110">
               <Zap className="w-12 h-12 text-blue-400 mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Immutable</h3>
               <p className="text-gray-400">
@@ -455,7 +456,7 @@ const handleProfileUpload = () => {
               </p>
             </div>
             
-            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200">
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-200 hover:scale-110">
               <Globe className="w-12 h-12 text-green-400 mb-4" />
               <h3 className="text-xl font-semibold text-white mb-2">Global</h3>
               <p className="text-gray-400">
@@ -477,7 +478,7 @@ const handleProfileUpload = () => {
             {!account ? (
               <button
                 onClick={connectWallet}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 inline-flex items-center space-x-2"
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 inline-flex items-center space-x-2 hover:scale-110 always-wiggle"
               >
                 <Wallet className="w-5 h-5" />
                 <span>Connect Wallet Now</span>
@@ -486,14 +487,14 @@ const handleProfileUpload = () => {
               <div className="flex flex-wrap justify-center gap-4">
                 <button
                   onClick={handleProfileUpload}
-                  className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 inline-flex items-center space-x-2"
+                  className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 inline-flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                 >
                   <Upload className="w-5 h-5" />
                   <span>Upload Profile</span>
                 </button>
                 <button
                   onClick={handleCvUpload}
-                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 inline-flex items-center space-x-2"
+                  className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 inline-flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
                 >
                   <FileText className="w-5 h-5" />
                   <span>Upload CV</span>

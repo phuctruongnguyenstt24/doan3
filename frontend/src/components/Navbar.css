@@ -98,6 +98,24 @@
   transition: background-color var(--transition-speed) ease, transform 0.1s ease;
 }
 
+
+/*tạo button connect Rung lắc*/
+.animate-wiggle {
+  animation: wiggle 0.8s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px) rotate(-2deg);
+  }
+  75% {
+    transform: translateX(3px) rotate(2deg);
+  }
+}
+
 .connect-btn:hover:not(:disabled) {
   background-color: var(--primary-hover);
   transform: translateY(-1px);
