@@ -1,219 +1,257 @@
 // frontend/src/pages/Profile/Profile.jsx
-import { useState, useEffect } from "react";
-import { useWallet } from "../../context/WalletContext";
-import { ProfileService } from "../../services/profileService";
-import { Link } from "react-router-dom";
-import "./Profile.css";
+import React, { useState, useEffect } from 'react';
+import { useWallet } from '../../context/WalletContext';
+import { useProfileContract } from '../../hooks/useProfileContract';
+import { 
+  User, Mail, Phone, MapPin, Shield, Menu, Wallet, CheckCircle, AlertCircle,
+  Edit, Key, Save, X, Briefcase, GraduationCap, Award, Code, Upload, FileText,
+  LogOut, Plus, Trash2,   Globe
+} from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
-function Profile() {
-  const { wallet, isConnected, connect } = useWallet();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+const Profile = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [error, setError] = useState(null);
-  const [address, setAddress] = useState("");
+  const navigate = useNavigate();
+  
+  const { account, connectWallet, disconnectWallet, formatAddress, balance } = useWallet();
+  const { profile, loading, saveProfile, fetchMyProfile } = useProfileContract();
 
-  // Load profile khi wallet thay đổi
+  const [formData, setFormData] = useState({
+    fullName: '',
+    bio: '',
+    email: '',
+    phone: '',
+    github: '',
+    linkedin: '',
+    website: ''
+  });
+
+  // Load profile data
   useEffect(() => {
-    if (isConnected && wallet?.address) {
-      loadProfile();
-    } else {
-      setLoading(false);
-      setProfile(null);
-      setAddress("");
+    if (profile?.exists) {
+      setFormData({
+        fullName: profile.fullName || '',
+        bio: profile.bio || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        github: profile.github || '',
+        linkedin: profile.linkedin || '',
+        website: profile.website || ''
+      });
     }
-  }, [wallet?.address, isConnected]);
+  }, [profile]);
 
-  const loadProfile = async () => {
+  // Handle save profile
+  const handleSave = async () => {
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-
-      if (!isConnected || !wallet?.address) {
-        await connect();
-        return;
+      const result = await saveProfile(formData);
+      if (result.success) {
+        setIsEditing(false);
+        alert('Lưu profile thành công!');
+      } else {
+        setError(result.error);
       }
-
-      if (!wallet.signer) {
-        throw new Error("No signer available");
-      }
-
-      const userAddress = wallet.address;
-      setAddress(userAddress);
-
-      const profileService = new ProfileService(wallet.signer);
-      const profileData = await profileService.getProfile(userAddress);
-      setProfile(profileData);
-
-      console.log("Profile loaded:", profileData);
     } catch (err) {
-      console.error("Error loading profile:", err);
-      setError(err.message || "Failed to load profile");
-    } finally {
-      setLoading(false);
+      setError(err.message);
     }
   };
 
-  // Format date
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "Never";
-    try {
-      return new Date(timestamp * 1000).toLocaleString();
-    } catch {
-      return "Never";
-    }
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({...prev, [name]: value}));
   };
 
-  // Kiểm tra trạng thái kết nối
-  if (!isConnected) {
-    return (
-      <div className="profile-container">
-        <div className="connect-prompt">
-          <h3>🔗 Connect Your Wallet</h3>
-          <p>Please connect your wallet to view and manage your profile.</p>
-          <button 
-            onClick={connect} 
-            className="connect-btn"
-            disabled={loading}
-          >
-            {loading ? "Connecting..." : "Connect Wallet"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="profile-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="profile-container">
-        <div className="error-message">
-          <h3>⚠️ Error</h3>
-          <p>{error}</p>
-          <button onClick={loadProfile} className="retry-btn">
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const navItems = [
+    { name: 'Home', href: '/' },
+    { name: 'Portfolio', href: '#portfolio' },
+    { name: 'Profile', href: '/profile' },
+  ];
 
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <h2>👤 Profile</h2>
-        <button 
-          onClick={loadProfile} 
-          className="refresh-btn"
-          disabled={loading}
-          title="Refresh profile"
-        >
-          {loading ? "Loading..." : "🔄 Refresh"}
-        </button>
-      </div>
-      
-      <div className="address-display">
-        <strong>Wallet Address:</strong>
-        <span className="address-text">{address}</span>
-      </div>
-
-      <div className="profile-display">
-        {profile?.exists ? (
-          <>
-            <div className="profile-field">
-              <strong>Full Name:</strong>
-              <span>{profile.fullName || "Not provided"}</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-md border-b border-purple-500/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/')}>
+              <Shield className="w-8 h-8 text-purple-500" />
+              <span className="text-xl font-bold text-white">Block<span className="text-purple-500">Portfolio</span></span>
             </div>
 
-            <div className="profile-field">
-              <strong>Bio:</strong>
-              <span>{profile.bio || "Not provided"}</span>
-            </div>
-
-            <div className="profile-field">
-              <strong>Email:</strong>
-              <span>{profile.email || "Not provided"}</span>
-            </div>
-
-            <div className="profile-field">
-              <strong>Phone:</strong>
-              <span>{profile.phone || "Not provided"}</span>
-            </div>
-
-            <div className="profile-field">
-              <strong>GitHub:</strong>
-              {profile.github ? (
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {profile.github}
+            <nav className="hidden md:flex items-center space-x-8">
+              {navItems.map((item) => (
+                <a key={item.name} href={item.href} className="text-gray-300 hover:text-purple-400 transition-colors">
+                  {item.name}
                 </a>
+              ))}
+            </nav>
+
+            <div className="flex items-center space-x-4">
+              {account ? (
+                <div className="flex items-center space-x-3">
+                  <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-green-400">{balance} ETH</span>
+                  </div>
+                  <button onClick={disconnectWallet} className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <Wallet className="w-4 h-4" />
+                    <span className="hidden sm:inline">{formatAddress(account)}</span>
+                  </button>
+                </div>
               ) : (
-                "Not provided"
+                <button onClick={connectWallet} className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:scale-110">
+                  <Wallet className="w-4 h-4" />
+                  <span>Connect Wallet</span>
+                </button>
               )}
+              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-gray-300">
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
-
-            <div className="profile-field">
-              <strong>LinkedIn:</strong>
-              {profile.linkedin ? (
-                <a
-                  href={profile.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {profile.linkedin}
-                </a>
-              ) : (
-                "Not provided"
-              )}
-            </div>
-
-            <div className="profile-field">
-              <strong>Website:</strong>
-              {profile.website ? (
-                <a
-                  href={profile.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {profile.website}
-                </a>
-              ) : (
-                "Not provided"
-              )}
-            </div>
-
-            <div className="profile-field">
-              <strong>Last Updated:</strong>
-              <span>{formatDate(profile.updatedAt)}</span>
-            </div>
-
-            <Link to="/editprofile" className="edit-btn">
-              ✏️ Edit Profile
-            </Link>
-          </>
-        ) : (
-          <div className="no-profile">
-            <p>📝 No profile found. Create one!</p>
-            <Link to="/editprofile" className="create-btn">
-              Create Profile
-            </Link>
           </div>
-        )}
-      </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="pt-20 pb-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white">Hồ sơ cá nhân</h1>
+              <p className="text-gray-400 mt-1">Quản lý thông tin cá nhân của bạn trên Blockchain</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {!isEditing ? (
+                <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-2 hover:scale-105">
+                  <Edit className="w-4 h-4" />
+                  <span>Chỉnh sửa</span>
+                </button>
+              ) : (
+                <>
+                  <button onClick={handleSave} disabled={loading} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2 hover:scale-105">
+                    <Save className="w-4 h-4" />
+                    <span>{loading ? 'Đang lưu...' : 'Lưu'}</span>
+                  </button>
+                  <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center space-x-2">
+                    <X className="w-4 h-4" />
+                    <span>Hủy</span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <span className="text-red-400">{error}</span>
+            </div>
+          )}
+
+          {!account ? (
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-12 text-center">
+              <Wallet className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+              <h3 className="text-xl text-white font-semibold mb-2">Kết nối ví để xem hồ sơ</h3>
+              <p className="text-gray-400 mb-4">Vui lòng kết nối MetaMask để quản lý hồ sơ của bạn</p>
+              <button onClick={connectWallet} className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                Kết nối ví
+              </button>
+            </div>
+          ) : loading ? (
+            <div className="text-center text-white py-12">Đang tải...</div>
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Left Column */}
+              <div className="lg:col-span-1 space-y-6">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-6 text-center">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 p-1 mx-auto">
+                    <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center">
+                      <User className="w-16 h-16 text-purple-400" />
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-semibold text-white mt-4">
+                    {isEditing ? (
+                      <input type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full bg-gray-700/50 border border-purple-500/30 rounded-lg px-3 py-1 text-white text-center focus:outline-none focus:border-purple-500" />
+                    ) : profile?.fullName || 'Chưa có tên'}
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-1">Ứng viên</p>
+                  {profile?.exists && (
+                    <div className="mt-3 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20 inline-block">
+                      <span className="text-xs text-green-400 flex items-center"><CheckCircle className="w-3 h-3 mr-1" /> Đã xác minh trên Blockchain</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Thông tin liên hệ</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Mail className="w-4 h-4 text-purple-400" />
+                      {isEditing ? <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="flex-1 bg-gray-700/50 border border-purple-500/30 rounded-lg px-3 py-1 text-white focus:outline-none focus:border-purple-500" /> : <span>{profile?.email || 'Chưa có'}</span>}
+                    </div>
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Phone className="w-4 h-4 text-purple-400" />
+                      {isEditing ? <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="flex-1 bg-gray-700/50 border border-purple-500/30 rounded-lg px-3 py-1 text-white focus:outline-none focus:border-purple-500" /> : <span>{profile?.phone || 'Chưa có'}</span>}
+                    </div>
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <MapPin className="w-4 h-4 text-purple-400" />
+                      <span className="text-sm text-gray-400">Địa chỉ ví: {formatAddress(account)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Mạng xã hội</h3>
+                  <div className="space-y-3">
+                     
+                     
+                    <div className="flex items-center space-x-3 text-gray-300">
+                      <Globe className="w-4 h-4 text-purple-400" />
+                      {isEditing ? <input type="text" name="website" value={formData.website} onChange={handleInputChange} placeholder="https://mywebsite.com" className="flex-1 bg-gray-700/50 border border-purple-500/30 rounded-lg px-3 py-1 text-white text-sm focus:outline-none focus:border-purple-500" /> : <span>{profile?.website || 'Chưa có'}</span>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-3">Giới thiệu</h3>
+                  {isEditing ? (
+                    <textarea name="bio" value={formData.bio} onChange={handleInputChange} rows="4" className="w-full bg-gray-700/50 border border-purple-500/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-purple-500 resize-none" />
+                  ) : (
+                    <p className="text-gray-300">{profile?.bio || 'Chưa có giới thiệu'}</p>
+                  )}
+                </div>
+
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-6">
+                  <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                    <Code className="w-5 h-5 text-purple-400 mr-2" />
+                    Thông tin Blockchain
+                  </h3>
+                  <div className="space-y-2 text-gray-300">
+                    <p><span className="text-gray-500">Địa chỉ ví:</span> {account}</p>
+                    <p><span className="text-gray-500">Số dư:</span> {balance} ETH</p>
+                    {profile?.exists && (
+                      <>
+                        <p><span className="text-gray-500">Cập nhật lần cuối:</span> {new Date(profile.updatedAt * 1000).toLocaleString()}</p>
+                        <p><span className="text-gray-500">Trạng thái:</span> <span className="text-green-400">✓ Đã xác minh</span></p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
-}
+};
 
 export default Profile;

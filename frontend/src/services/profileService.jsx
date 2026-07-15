@@ -1,10 +1,11 @@
-// frontend/src/services/ProfileService.js
+// services/profileService.js
+import { ethers } from 'ethers';
+
 export class ProfileService {
   constructor(contract) {
     this.contract = contract;
   }
 
-  // Lấy profile từ blockchain
   async getProfile(address) {
     try {
       if (!this.contract) {
@@ -12,63 +13,120 @@ export class ProfileService {
       }
 
       // Kiểm tra profile tồn tại
-      const exists = await this.contract.profileExists(address);
+      let exists = false;
+      try {
+        exists = await this.contract.profileExists(address);
+      } catch (err) {
+        console.warn('Error checking profile existence:', err);
+        // Nếu contract không có hàm này, giả định profile không tồn tại
+        return {
+          exists: false,
+          fullName: '',
+          bio: '',
+          email: '',
+          phone: '',
+          avatarHash: '',
+          updatedAt: null
+        };
+      }
       
       if (!exists) {
-        return null;
+        return {
+          exists: false,
+          fullName: '',
+          bio: '',
+          email: '',
+          phone: '',
+          avatarHash: '',
+          updatedAt: null
+        };
       }
 
       // Lấy dữ liệu profile
-      const profileData = await this.contract.getProfile(address);
+      let profileData;
+      try {
+        profileData = await this.contract.getProfile(address);
+      } catch (err) {
+        console.error('Error calling getProfile:', err);
+        return {
+          exists: false,
+          fullName: '',
+          bio: '',
+          email: '',
+          phone: '',
+          avatarHash: '',
+          updatedAt: null
+        };
+      }
       
+      // Kiểm tra dữ liệu trả về
+      if (!profileData || typeof profileData !== 'object') {
+        return {
+          exists: false,
+          fullName: '',
+          bio: '',
+          email: '',
+          phone: '',
+          avatarHash: '',
+          updatedAt: null
+        };
+      }
+
+      // Trả về dữ liệu với kiểm tra an toàn
       return {
-        fullName: profileData[0],
-        bio: profileData[1],
-        email: profileData[2],
-        phone: profileData[3],
-        avatarHash: profileData[4],
-        github: profileData[5],
-        linkedin: profileData[6],
-        website: profileData[7],
-        updatedAt: new Date(Number(profileData[8]) * 1000).toLocaleString('vi-VN'),
-        exists: profileData[9],
+        fullName: profileData.fullName || profileData[0] || '',
+        bio: profileData.bio || profileData[1] || '',
+        email: profileData.email || profileData[2] || '',
+        phone: profileData.phone || profileData[3] || '',
+        avatarHash: profileData.avatarHash || profileData[4] || '',
+        updatedAt: profileData.updatedAt || profileData[5] || null,
+        exists: true,
         address: address
       };
     } catch (error) {
       console.error('Error fetching profile from blockchain:', error);
-      throw error;
+      return {
+        exists: false,
+        fullName: '',
+        bio: '',
+        email: '',
+        phone: '',
+        avatarHash: '',
+        updatedAt: null
+      };
     }
   }
 
-  // Tạo hoặc cập nhật profile
   async createOrUpdateProfile(profileData) {
     try {
       if (!this.contract) {
         throw new Error('Contract not initialized');
       }
 
-      // Validate dữ liệu
       if (!profileData.fullName || profileData.fullName.trim() === '') {
         throw new Error('Full name is required');
       }
 
       console.log('Sending transaction to blockchain...');
+      console.log('Profile data:', profileData);
       
-      // Gửi transaction lên blockchain
+      // Kiểm tra xem contract có hàm createOrUpdateProfile không
+      if (typeof this.contract.createOrUpdateProfile !== 'function') {
+        throw new Error('Contract does not have createOrUpdateProfile function');
+      }
+      
+      // Gọi hàm với tham số phù hợp với ABI
       const tx = await this.contract.createOrUpdateProfile(
         profileData.fullName.trim(),
         profileData.bio || '',
         profileData.email || '',
         profileData.phone || '',
-        profileData.avatarHash || '',
-        profileData.github || '',
-        profileData.linkedin || '',
-        profileData.website || ''
+        profileData.avatarHash || ''
       );
       
       console.log('Transaction sent, waiting for confirmation...');
       const receipt = await tx.wait();
-      console.log('Transaction confirmed! Hash:', receipt.hash);
+      console.log('Transaction confirmed! Hash:', receipt.transactionHash);
       
       return receipt;
     } catch (error) {
@@ -77,32 +135,11 @@ export class ProfileService {
     }
   }
 
-  // Cập nhật avatar
-  async updateAvatar(avatarHash) {
-    try {
-      if (!this.contract) {
-        throw new Error('Contract not initialized');
-      }
-
-      if (!avatarHash || avatarHash.trim() === '') {
-        throw new Error('Avatar hash is required');
-      }
-
-      const tx = await this.contract.updateAvatar(avatarHash.trim());
-      const receipt = await tx.wait();
-      
-      console.log('Avatar updated! Hash:', receipt.hash);
-      return receipt;
-    } catch (error) {
-      console.error('Error updating avatar:', error);
-      throw error;
-    }
-  }
-
-  // Kiểm tra profile tồn tại
   async profileExists(address) {
     try {
-      if (!this.contract) {
+      if (!this.contract) return false;
+      if (typeof this.contract.profileExists !== 'function') {
+        console.warn('profileExists function not available');
         return false;
       }
       return await this.contract.profileExists(address);
@@ -112,19 +149,12 @@ export class ProfileService {
     }
   }
 
-  // Lấy tất cả profiles (không có API nên trả về mảng rỗng)
-  async getAllProfiles() {
-    return [];
-  }
-
-  // Format địa chỉ
   formatAddress(address) {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   }
 
-  // Kiểm tra xem có phải là địa chỉ hợp lệ không
   isValidAddress(address) {
-    return /^0x[a-fA-F0-9]{40}$/.test(address);
+    return address && /^0x[a-fA-F0-9]{40}$/.test(address);
   }
 }

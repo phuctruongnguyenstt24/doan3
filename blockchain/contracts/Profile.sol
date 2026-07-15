@@ -146,8 +146,7 @@ contract Profile is Ownable {
         string email;
         string phone;
         string avatarHash;    // IPFS hash
-        string github;
-        string linkedin;
+      
         string website;
         uint256 updatedAt;
         bool exists;
@@ -170,8 +169,7 @@ contract Profile is Ownable {
         string memory _email,
         string memory _phone,
         string memory _avatarHash,
-        string memory _github,
-        string memory _linkedin,
+    
         string memory _website
     ) external {
         ProfileData storage profile = profiles[msg.sender];
@@ -181,8 +179,7 @@ contract Profile is Ownable {
         profile.email = _email;
         profile.phone = _phone;
         profile.avatarHash = _avatarHash;
-        profile.github = _github;
-        profile.linkedin = _linkedin;
+   
         profile.website = _website;
         profile.updatedAt = block.timestamp;
         
@@ -208,8 +205,7 @@ contract Profile is Ownable {
         string memory email,
         string memory phone,
         string memory avatarHash,
-        string memory github,
-        string memory linkedin,
+        
         string memory website,
         uint256 updatedAt,
         bool exists
@@ -221,8 +217,7 @@ contract Profile is Ownable {
             profile.email,
             profile.phone,
             profile.avatarHash,
-            profile.github,
-            profile.linkedin,
+          
             profile.website,
             profile.updatedAt,
             profile.exists

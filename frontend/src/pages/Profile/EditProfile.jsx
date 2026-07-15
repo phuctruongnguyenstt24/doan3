@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../../context/WalletContext';
 import { ProfileService } from '../../services/ProfileService';
+import { ethers } from 'ethers';
 import './EditProfile.css';
 
 const EditProfile = () => {
   const navigate = useNavigate();
-  const { account, contract, isConnected, loading, setLoading, error, setError } = useWallet();
+  const { wallet, isConnected, connect } = useWallet();
   const [formData, setFormData] = useState({
     fullName: '',
     bio: '',
@@ -19,24 +20,30 @@ const EditProfile = () => {
     website: ''
   });
   const [isEditMode, setIsEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [txStatus, setTxStatus] = useState(null);
+  const [txHash, setTxHash] = useState(null);
+  const [balance, setBalance] = useState(null);
 
   useEffect(() => {
     if (!isConnected) {
-      navigate('/');
-    } else if (contract) {
+      connect();
+    } else if (wallet?.signer) {
       loadExistingProfile();
+      loadBalance();
     }
-  }, [isConnected, contract]);
+  }, [isConnected, wallet?.signer]);
 
   const loadExistingProfile = async () => {
-    if (!contract) return;
+    if (!wallet?.signer) return;
     
     try {
       setLoading(true);
-      const profileService = new ProfileService(contract);
-      const profileData = await profileService.getProfile(account);
+      const profileService = new ProfileService(wallet.signer);
+      const profileData = await profileService.getProfile(wallet.address);
       
-      if (profileData) {
+      if (profileData?.exists) {
         setFormData({
           fullName: profileData.fullName || '',
           bio: profileData.bio || '',
@@ -56,38 +63,75 @@ const EditProfile = () => {
     }
   };
 
+  const loadBalance = async () => {
+    try {
+      if (!wallet?.address) return;
+      const provider = wallet.provider || new ethers.providers.Web3Provider(window.ethereum);
+      const balanceWei = await provider.getBalance(wallet.address);
+      setBalance(ethers.utils.formatEther(balanceWei));
+    } catch (err) {
+      console.error("Error loading balance:", err);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!contract) return;
+    if (!wallet?.signer) {
+      setError('Please connect your wallet first');
+      return;
+    }
 
     try {
       setLoading(true);
-      const profileService = new ProfileService(contract);
+      setError(null);
+      setTxStatus('⏳ Preparing transaction...');
+      setTxHash(null);
+
+      const profileService = new ProfileService(wallet.signer);
       
-      // Thêm address vào data
       const dataWithAddress = {
         ...formData,
-        address: account
+        address: wallet.address
       };
       
-      await profileService.createOrUpdateProfile(dataWithAddress);
+      setTxStatus('⏳ Sending transaction to blockchain...');
       
-      alert(isEditMode ? '✅ Profile updated successfully!' : '✅ Profile created successfully!');
-      navigate('/profile');
+      const tx = await profileService.createOrUpdateProfile(dataWithAddress);
+      setTxHash(tx.hash);
+      
+      setTxStatus('⏳ Waiting for confirmation...');
+      
+      // Chờ transaction được confirm
+      await tx.wait();
+      
+      setTxStatus(`✅ ${isEditMode ? 'Updated' : 'Created'} successfully!`);
+      
+      setTimeout(() => {
+        navigate('/profile');
+      }, 1500);
+      
     } catch (err) {
       setError('Failed to save profile: ' + err.message);
+      setTxStatus('❌ Transaction failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert("✅ Copied to clipboard!");
+  };
+
+  const formatAddress = (address) => {
+    if (!address) return "";
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   return (
@@ -99,6 +143,56 @@ const EditProfile = () => {
       <div className="edit-profile-card">
         <h2>{isEditMode ? '✏️ Edit Profile' : '✨ Create Profile'}</h2>
         
+        {/* Wallet Info */}
+        <div className="wallet-info-bar">
+          <div className="wallet-address">
+            <strong>🔗 Connected:</strong>
+            <span>{wallet?.address ? formatAddress(wallet.address) : 'Not connected'}</span>
+            {wallet?.address && (
+              <button 
+                onClick={() => copyToClipboard(wallet.address)}
+                className="copy-btn-small"
+                title="Copy full address"
+              >
+                📋
+              </button>
+            )}
+          </div>
+          {balance && (
+            <div className="wallet-balance">
+              <strong>💰 Balance:</strong>
+              <span>{parseFloat(balance).toFixed(4)} ETH</span>
+            </div>
+          )}
+        </div>
+
+        {/* Transaction Status */}
+        {txStatus && (
+          <div className={`tx-status ${txStatus.includes('✅') ? 'success' : txStatus.includes('❌') ? 'error' : 'pending'}`}>
+            {txStatus}
+          </div>
+        )}
+
+        {/* Transaction Hash */}
+        {txHash && (
+          <div className="tx-hash-info">
+            <strong>Transaction Hash:</strong>
+            <a 
+              href={`https://etherscan.io/tx/${txHash}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              {formatAddress(txHash)}
+            </a>
+            <button 
+              onClick={() => copyToClipboard(txHash)}
+              className="copy-btn-small"
+            >
+              📋
+            </button>
+          </div>
+        )}
+
         {error && (
           <div className="error-message">
             {error}
@@ -203,7 +297,7 @@ const EditProfile = () => {
 
           <div className="form-actions">
             <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? '⏳ Saving...' : isEditMode ? '💾 Update Profile' : '🚀 Create Profile'}
+              {loading ? '⏳ Processing...' : isEditMode ? '💾 Update Profile' : '🚀 Create Profile'}
             </button>
             <button 
               type="button" 
