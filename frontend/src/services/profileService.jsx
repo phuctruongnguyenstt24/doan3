@@ -1,152 +1,14 @@
 // services/profileService.js
-import { ethers } from 'ethers';
 
 export class ProfileService {
   constructor(contract) {
     this.contract = contract;
   }
 
-  async getProfile(address) {
-    try {
-      if (!this.contract) {
-        throw new Error('Contract not initialized');
-      }
+  // ─── helpers ──────────────────────────────────────────────────────────────
 
-      // Kiểm tra profile tồn tại
-      let exists = false;
-      try {
-        exists = await this.contract.profileExists(address);
-      } catch (err) {
-        console.warn('Error checking profile existence:', err);
-        // Nếu contract không có hàm này, giả định profile không tồn tại
-        return {
-          exists: false,
-          fullName: '',
-          bio: '',
-          email: '',
-          phone: '',
-          avatarHash: '',
-          updatedAt: null
-        };
-      }
-      
-      if (!exists) {
-        return {
-          exists: false,
-          fullName: '',
-          bio: '',
-          email: '',
-          phone: '',
-          avatarHash: '',
-          updatedAt: null
-        };
-      }
-
-      // Lấy dữ liệu profile
-      let profileData;
-      try {
-        profileData = await this.contract.getProfile(address);
-      } catch (err) {
-        console.error('Error calling getProfile:', err);
-        return {
-          exists: false,
-          fullName: '',
-          bio: '',
-          email: '',
-          phone: '',
-          avatarHash: '',
-          updatedAt: null
-        };
-      }
-      
-      // Kiểm tra dữ liệu trả về
-      if (!profileData || typeof profileData !== 'object') {
-        return {
-          exists: false,
-          fullName: '',
-          bio: '',
-          email: '',
-          phone: '',
-          avatarHash: '',
-          updatedAt: null
-        };
-      }
-
-      // Trả về dữ liệu với kiểm tra an toàn
-      return {
-        fullName: profileData.fullName || profileData[0] || '',
-        bio: profileData.bio || profileData[1] || '',
-        email: profileData.email || profileData[2] || '',
-        phone: profileData.phone || profileData[3] || '',
-        avatarHash: profileData.avatarHash || profileData[4] || '',
-        updatedAt: profileData.updatedAt || profileData[5] || null,
-        exists: true,
-        address: address
-      };
-    } catch (error) {
-      console.error('Error fetching profile from blockchain:', error);
-      return {
-        exists: false,
-        fullName: '',
-        bio: '',
-        email: '',
-        phone: '',
-        avatarHash: '',
-        updatedAt: null
-      };
-    }
-  }
-
-  async createOrUpdateProfile(profileData) {
-    try {
-      if (!this.contract) {
-        throw new Error('Contract not initialized');
-      }
-
-      if (!profileData.fullName || profileData.fullName.trim() === '') {
-        throw new Error('Full name is required');
-      }
-
-      console.log('Sending transaction to blockchain...');
-      console.log('Profile data:', profileData);
-      
-      // Kiểm tra xem contract có hàm createOrUpdateProfile không
-      if (typeof this.contract.createOrUpdateProfile !== 'function') {
-        throw new Error('Contract does not have createOrUpdateProfile function');
-      }
-      
-      // Gọi hàm với tham số phù hợp với ABI
-      const tx = await this.contract.createOrUpdateProfile(
-        profileData.fullName.trim(),
-        profileData.bio || '',
-        profileData.email || '',
-        profileData.phone || '',
-        profileData.avatarHash || ''
-      );
-      
-      console.log('Transaction sent, waiting for confirmation...');
-      const receipt = await tx.wait();
-      console.log('Transaction confirmed! Hash:', receipt.transactionHash);
-      
-      return receipt;
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
-  }
-
-  async profileExists(address) {
-    try {
-      if (!this.contract) return false;
-      if (typeof this.contract.profileExists !== 'function') {
-        console.warn('profileExists function not available');
-        return false;
-      }
-      return await this.contract.profileExists(address);
-    } catch (error) {
-      console.error('Error checking profile existence:', error);
-      return false;
-    }
+  isValidAddress(address) {
+    return !!address && /^0x[a-fA-F0-9]{40}$/.test(address);
   }
 
   formatAddress(address) {
@@ -154,7 +16,84 @@ export class ProfileService {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   }
 
-  isValidAddress(address) {
-    return address && /^0x[a-fA-F0-9]{40}$/.test(address);
+  /** Chuyển Unix timestamp (giây) → chuỗi "HH:MM:SS DD/MM/YYYY" */
+  _formatTimestamp(ts) {
+    if (!ts || Number(ts) === 0) return '';
+    const d = new Date(Number(ts) * 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    return (
+      `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ` +
+      `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`
+    );
+  }
+
+  // ─── read ─────────────────────────────────────────────────────────────────
+
+  async getProfile(address) {
+    if (!this.contract) throw new Error('Contract chưa được khởi tạo.');
+
+    // Kiểm tra profile tồn tại
+    let exists = false;
+    try {
+      exists = await this.contract.profileExists(address);
+    } catch (err) {
+      console.warn('profileExists error:', err);
+    }
+
+    if (!exists) return null;   // ViewCV sẽ hiện thông báo "không tìm thấy"
+
+    const p = await this.contract.getProfile(address);
+
+    return {
+      address,
+      fullName:   p.fullName   ?? p[0] ?? '',
+      bio:        p.bio        ?? p[1] ?? '',
+      email:      p.email      ?? p[2] ?? '',
+      phone:      p.phone      ?? p[3] ?? '',
+      avatarHash: p.avatarHash ?? p[4] ?? '',
+      github:     p.github     ?? p[5] ?? '',
+      linkedin:   p.linkedin   ?? p[6] ?? '',
+      website:    p.website    ?? p[7] ?? '',
+      updatedAt:  this._formatTimestamp(p.updatedAt ?? p[8]),
+      exists:     true,
+    };
+  }
+
+  // ─── write ────────────────────────────────────────────────────────────────
+
+  /**
+   * ABI yêu cầu 8 tham số:
+   * fullName, bio, email, phone, avatarHash, github, linkedin, website
+   */
+  async createOrUpdateProfile(profileData) {
+    if (!this.contract) throw new Error('Contract chưa được khởi tạo.');
+    if (!profileData.fullName?.trim()) throw new Error('Họ và tên không được để trống.');
+
+    console.log('Gửi giao dịch lên blockchain...', profileData);
+
+    const tx = await this.contract.createOrUpdateProfile(
+      profileData.fullName.trim(),
+      profileData.bio       || '',
+      profileData.email     || '',
+      profileData.phone     || '',
+      profileData.avatarHash || '',
+      profileData.github    || '',
+      profileData.linkedin  || '',
+      profileData.website   || ''
+    );
+
+    console.log('Đang chờ xác nhận...');
+    const receipt = await tx.wait();
+    console.log('Xác nhận thành công! Hash:', receipt.hash ?? receipt.transactionHash);
+    return receipt;
+  }
+
+  async profileExists(address) {
+    if (!this.contract) return false;
+    try {
+      return await this.contract.profileExists(address);
+    } catch {
+      return false;
+    }
   }
 }
