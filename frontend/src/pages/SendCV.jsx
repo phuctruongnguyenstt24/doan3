@@ -5,7 +5,9 @@ import { ProfileService } from '../services/profileService.jsx'
 const SEPOLIA_CHAIN_ID = 11155111
 
 function SendCV() {
-  const { wallet, connect, isConnected, isConnecting } = useWallet()
+  // Đã sửa destructuring từ useWallet (các biến file này thì nên có các state WalletContext.jsx)
+  const { contract, signer, connectWallet, isConnected, loading: isConnecting } = useWallet()
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -39,11 +41,13 @@ function SendCV() {
     setLoading(true)
 
     try {
+      // Gọi chính xác hàm connectWallet từ Context
       if (!isConnected) {
-        await connect()
+        await connectWallet()
       }
 
-      if (!wallet?.signer) {
+      // Kiểm tra thực thể contract đã được map vào ví chưa
+      if (!contract) {
         throw new Error('Vui lòng kết nối MetaMask trước khi gửi CV.')
       }
 
@@ -52,7 +56,8 @@ function SendCV() {
         throw new Error('Vui lòng chuyển MetaMask sang Sepolia testnet.')
       }
 
-      const profileService = new ProfileService(wallet.signer)
+      // Truyền trực tiếp contract instance vào Service thay vì wallet.signer
+      const profileService = new ProfileService(contract)
       await profileService.createOrUpdateProfile({
         fullName: formData.fullName,
         bio: formData.summary,
@@ -181,10 +186,10 @@ function SendCV() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isConnecting}
               className="w-full rounded-3xl bg-cyan-500 px-5 py-3 text-base font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? 'Đang gửi...' : 'Gửi CV lên Sepolia'}
+              {loading ? 'Đang gửi...' : isConnecting ? 'Đang kết nối ví...' : 'Gửi CV lên Sepolia'}
             </button>
 
             {status && (
@@ -196,27 +201,19 @@ function SendCV() {
 
           <aside className="space-y-5 rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
             <div className="rounded-3xl bg-slate-900 p-4">
-              <p className="text-sm uppercase tracking-[0.35em] text-slate-500">Sepolia</p>
-              <p className="mt-3 text-lg font-semibold text-white">Chỉ dùng Sepolia testnet</p>
-              <p className="mt-2 text-slate-400">
-                Hãy đảm bảo MetaMask đã chuyển sang mạng Sepolia trước khi gửi. Nếu chưa, chuyển mạng rồi thử lại.
-              </p>
-            </div>
-
-            <div className="rounded-3xl bg-slate-900 p-4">
-              <p className="text-sm uppercase tracking-[0.35em] text-slate-500">Hướng dẫn nhanh</p>
-              <ul className="mt-3 space-y-3 text-slate-400">
-                <li>1. Kết nối MetaMask.</li>
-                <li>2. Chuyển mạng sang Sepolia.</li>
-                <li>3. Nhập tên, email, phone và tóm tắt CV.</li>
-                <li>4. Dán hash/IPFS của CV nếu có.</li>
-                <li>5. Nhấn gửi để lưu lên blockchain.</li>
-              </ul>
+              <p className="text-sm uppercase tracking-[0.35em] text-slate-500">Trạng thái ví</p>
+              <div className="mt-3 text-sm">
+                {isConnected ? (
+                  <span className="text-emerald-400 font-medium">● Đã kết nối MetaMask</span>
+                ) : (
+                  <span className="text-amber-400 font-medium">○ Chưa kết nối</span>
+                )}
+              </div>
             </div>
 
             <div className="rounded-3xl bg-slate-900 p-4">
               <p className="text-sm uppercase tracking-[0.35em] text-slate-500">Lưu ý</p>
-              <p className="mt-3 text-slate-400">
+              <p className="mt-3 text-sm text-slate-400">
                 Dữ liệu CV sẽ được lưu ở trường profile contract: summary vào bio, hash CV vào avatarHash.
               </p>
             </div>
