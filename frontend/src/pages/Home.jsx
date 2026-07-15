@@ -428,13 +428,22 @@ const Home = () => {
                     </button>
                   </>
                 )}
-                <a
-                  href="#portfolio"
-                  className="px-6 py-3 border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl"
+
+                {/* Nút đã được chỉnh sửa để chuyển hướng qua trang ViewCV */}
+              <div></div>
+                <button
+                  onClick={() => {
+                    if (!account) {
+                      setError("Please connect your wallet first!");
+                      return;
+                    }
+                    navigate("/viewcv");
+                  }}
+                  className="px-6 py-3 border border-purple-500/50 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-all duration-200 flex items-center space-x-2 hover:scale-110 hover:shadow-xl cursor-pointer"
                 >
                   <span>Explore Portfolios</span>
                   <ArrowRight className="w-5 h-5" />
-                </a>
+                </button>
               </div>
 
               {error && (
