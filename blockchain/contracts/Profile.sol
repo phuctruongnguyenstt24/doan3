@@ -87,4 +87,57 @@ contract Profile {
     function profileExists(address _user) external view returns (bool) {
         return profiles[_user].exists;
     }
+    // Thêm vào Profile.sol
+
+struct ShareRecord {
+    address sharer;
+    string signature;
+    uint256 timestamp;
+    bool exists;
+}
+
+mapping(address => ShareRecord[]) public shares;
+mapping(address => mapping(address => bool)) public hasShared;
+
+event ProfileShared(address indexed profileAddress, address indexed sharer, uint256 timestamp);
+
+function shareProfile(
+    address _profileAddress,
+    string memory _signature
+    //string memory _data
+) external {
+    require(profiles[_profileAddress].exists, "Profile does not exist");
+    require(!hasShared[_profileAddress][msg.sender], "Already shared");
+    
+    shares[_profileAddress].push(ShareRecord({
+        sharer: msg.sender,
+        signature: _signature,
+        timestamp: block.timestamp,
+        exists: true
+    }));
+    
+    hasShared[_profileAddress][msg.sender] = true;
+    
+    emit ProfileShared(_profileAddress, msg.sender, block.timestamp);
+}
+
+function getShares(address _profileAddress) external view returns (
+    address[] memory sharers,
+    uint256[] memory timestamps
+) {
+    ShareRecord[] storage userShares = shares[_profileAddress];
+    sharers = new address[](userShares.length);
+    timestamps = new uint256[](userShares.length);
+    
+    for (uint i = 0; i < userShares.length; i++) {
+        sharers[i] = userShares[i].sharer;
+        timestamps[i] = userShares[i].timestamp;
+    }
+    
+    return (sharers, timestamps);
+}
+
+function getShareCount(address _profileAddress) external view returns (uint256) {
+    return shares[_profileAddress].length;
+}
 }

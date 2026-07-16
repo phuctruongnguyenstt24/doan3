@@ -28,7 +28,7 @@ function Features() {
   return (
     <section 
       id="features" 
-      className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen   from-gray-900 via-purple-900 to-gray-900 text-white flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8"
     >
       {/* Header Section */}
       <div className="max-w-3xl mx-auto text-center mb-16">

@@ -51,7 +51,7 @@ function ViewCV() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100">
+    <div className="min-h-screen bg-slate-550 px-4 py-10 text-slate-100">
       <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-slate-900/95 p-8 shadow-2xl">
         
         {/* Header */}
