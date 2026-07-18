@@ -1,0 +1,135 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        { "internalType": "address", "name": "_owner", "type": "address" }
+      ]
+    },
+    {
+      "type": "receive",
+      "stateMutability": "payable"
+    },
+    {
+      "anonymous": false,
+      "type": "event",
+      "name": "DonationReceived",
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "donor", "type": "address" },
+        { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" },
+        { "indexed": false, "internalType": "string", "name": "message", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+      ]
+    },
+    {
+      "anonymous": false,
+      "type": "event",
+      "name": "Withdrawn",
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
+        { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+      ]
+    },
+    {
+      "anonymous": false,
+      "type": "event",
+      "name": "OwnerChanged",
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "oldOwner", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "donate",
+      "stateMutability": "payable",
+      "inputs": [
+        { "internalType": "string", "name": "_message", "type": "string" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getDonationCount",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDonation",
+      "stateMutability": "view",
+      "inputs": [
+        { "internalType": "uint256", "name": "index", "type": "uint256" }
+      ],
+      "outputs": [
+        { "internalType": "address", "name": "donor", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" },
+        { "internalType": "string", "name": "message", "type": "string" },
+        { "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDonations",
+      "stateMutability": "view",
+      "inputs": [
+        { "internalType": "uint256", "name": "offset", "type": "uint256" },
+        { "internalType": "uint256", "name": "limit", "type": "uint256" }
+      ],
+      "outputs": [
+        { "internalType": "address[]", "name": "donors", "type": "address[]" },
+        { "internalType": "uint256[]", "name": "amounts", "type": "uint256[]" },
+        { "internalType": "string[]", "name": "messages", "type": "string[]" },
+        { "internalType": "uint256[]", "name": "timestamps", "type": "uint256[]" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "contractBalance",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "withdraw",
+      "stateMutability": "nonpayable",
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setOwner",
+      "stateMutability": "nonpayable",
+      "inputs": [
+        { "internalType": "address", "name": "_newOwner", "type": "address" }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        { "internalType": "address", "name": "", "type": "address" }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "totalDonated",
+      "stateMutability": "view",
+      "inputs": [],
+      "outputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" }
+      ]
+    }
+  ]
+}
