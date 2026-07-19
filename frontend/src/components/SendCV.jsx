@@ -6,8 +6,11 @@ const SEPOLIA_CHAIN_ID = 11155111
 
 function SendCV() {
   // Đã sửa destructuring từ useWallet (các biến file này thì nên có các state WalletContext.jsx)
+  //lấy các value={...} trong WalletContext.Provider ở file WalletContext.jsx
   const { contract, signer, connectWallet, isConnected, loading: isConnecting } = useWallet()
-  
+  //Lưu dữ liệu form dạng state
+  //Giá trị ban đầu là một object với các chuỗi rỗng ('').
+  //Khi người dùng nhập vào ô input, setFormData() sẽ cập nhật dữ liệu (Vd: formData.fullName: ra  fullName: "Nguyễn Văn A",) 
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -17,17 +20,19 @@ function SendCV() {
     github: '',
     linkedin: ''
   })
+  //Loading mặc định là false ==> useState(false) 
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState('')//Mặc định là chuỗi rỗng đọi biến setStatus sẽ làm thay đổi giá trị
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    const { name, value } = e.target//giống const name = e.target.name và const value = e.target.value
+    setFormData(prev => ({ ...prev, [name]: value }))//Họ tên: Nguyễn Văn A (hiện đúng cấu trúc [name]: value)
   }
 
   const ensureSepolia = async () => {
     if (!window.ethereum || !window.ethereum.request) return false
     try {
+      //lấy chainID
       const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' })
       return Number(chainIdHex) === SEPOLIA_CHAIN_ID
     } catch {
@@ -38,7 +43,7 @@ function SendCV() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setStatus('')
-    setLoading(true)
+    setLoading(true)//hiện thanh loading ra
 
     try {
       // Gọi chính xác hàm connectWallet từ Context
@@ -57,7 +62,8 @@ function SendCV() {
       }
 
       // Truyền trực tiếp contract instance vào Service thay vì wallet.signer
-      const profileService = new ProfileService(contract)
+      const profileService = new ProfileService(contract)//là truyền contract đã được kết nối với MetaMask vào Service.
+      //Bên trong Service sẽ gọi hàm của Smart Contract. (Để tạo hoặc update profile)
       await profileService.createOrUpdateProfile({
         fullName: formData.fullName,
         bio: formData.summary,
@@ -87,6 +93,9 @@ function SendCV() {
     }
   }
 
+  //Trong ngữ cảnh công nghệ thông tin và blockchain, IPFS là viết tắt của InterPlanetary File System. Đây là một hệ thống lưu trữ và chia sẻ tệp tin phân tán ngang hàng (P2P), hoạt động mà không cần máy chủ trung tâm
+  //Khi bạn tải CV lên mạng lưới IPFS, tệp tin của bạn được chia nhỏ và lưu trữ trên nhiều máy tính (nodes) khác nhau toàn cầu. Bất cứ ai có mã CID của CV đều có thể truy cập tệp.
+  //<span className="mb-2 block text-sm font-medium">Hash/IPFS CV</span>: mã CID (Content Identifier) của tệp CV bạn đã tải lên mạng lưới IPFS trước đó.
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100">
       <div className="mx-auto max-w-4xl rounded-[32px] border border-slate-800 bg-slate-900/95 p-8 shadow-2xl shadow-slate-950/30">

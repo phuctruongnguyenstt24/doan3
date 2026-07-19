@@ -4,36 +4,45 @@ import { ProfileService } from '../services/profileService.jsx'
 
 function ViewCV() {
   const { contract, account, isConnected } = useWallet()
-  const [searchAddress, setSearchAddress] = useState('')
+  const [searchAddress, setSearchAddress] = useState('')//Lưu địa chỉ ví người dùng nhập vào ô tìm kiếm.(Ví dụ: 0x123456789...)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  //useWallet(): Lấy thông tin ví MetaMask từ WalletContex
+  //useState: Quản lý dữ liệu (state) của component.
+  //useEffect: Thực hiện tác vụ khi component được render hoặc khi dữ liệu thay đổi.
+  //ProfileService: Service dùng để đọc dữ liệu từ Smart Contract.
+
   // Tự động tải profile của người dùng đang kết nối
   useEffect(() => {
     if (isConnected && contract && account) {
-      fetchProfile(account)
+      fetchProfile(account)//fetch account
     }
   }, [isConnected, contract, account])
 
   const fetchProfile = async (addressToFetch) => {
-    if (!contract) return
-    setLoading(true)
-    setError('')
-    setProfile(null)
+    if (!contract) return//Nếu chưa kết nối Smart Contract thì dừng.
+    
+    
+    setLoading(true)//Hiển thị trạng thái Loading
+    setError('')//Xóa lỗi cũ.
+    setProfile(null)//Xóa Profile cũ.
 
     try {
+      //Tạo đối tượng để làm việc với Smart Contract.
       const profileService = new ProfileService(contract)
-      
+      //Kiểm tra địa chỉ ví bằng hàm isValidAddress bên ProfileService 
       if (!profileService.isValidAddress(addressToFetch)) {
         throw new Error('Địa chỉ ví Blockchain không hợp lệ.')
       }
 
+      //Lấy data  profilebằng hàm getProfile bên ProfileService
       const data = await profileService.getProfile(addressToFetch)
       if (!data) {
         setError('Không tìm thấy dữ liệu CV nào cho địa chỉ ví này.')
       } else {
-        setProfile(data)
+        setProfile(data)//Add data vào Profile
       }
     } catch (err) {
       console.error(err)
@@ -44,9 +53,12 @@ function ViewCV() {
   }
 
   const handleSearch = (e) => {
-    e.preventDefault()
+    //e là Event Object (đối tượng sự kiện).
+    //Nó chứa thông tin về sự kiện vừa xảy ra.(VD: Người dùng nhấn nút "Tìm kiếm")
+    e.preventDefault()//ngăn hành động mặc định của form React là reload trang
     if (searchAddress.trim()) {
-      fetchProfile(searchAddress.trim())
+      //trim() dùng để xóa khoảng trắng ở đầu và cuối chuỗi.
+      fetchProfile(searchAddress.trim())//Tìm Profile vào trim() 
     }
   }
 
