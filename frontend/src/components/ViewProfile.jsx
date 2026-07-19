@@ -396,7 +396,6 @@ const ViewProfile = () => {
       setIsSharing(false);
     }
   };
-
   // Copy link
   const copyToClipboard = async () => {
     try {

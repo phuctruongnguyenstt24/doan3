@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-a711e44f39d12e4570af6f6ba82376f0de5d568c",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.9.1"
+  },
+  "userSourceNameMap": {
+    "contracts/DonateVault.sol": "project/contracts/DonateVault.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/DonateVault.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.28;\n\n/// @title DonateVault\n/// @notice Cho phép người ghé thăm gửi ETH kèm lời nhắn để \"donate\" cho chủ trang.\n///         Lịch sử donate được lưu on-chain nên hiển thị lại được bất cứ lúc nào,\n///         không cần backend / database riêng.\ncontract DonateVault {\n    address public owner;\n\n    struct Donation {\n        address donor;\n        uint256 amount;\n        string message;\n        uint256 timestamp;\n    }\n\n    Donation[] private donations;\n    uint256 public totalDonated;\n\n    event DonationReceived(\n        address indexed donor,\n        uint256 amount,\n        string message,\n        uint256 timestamp\n    );\n    event Withdrawn(address indexed to, uint256 amount, uint256 timestamp);\n    event OwnerChanged(address indexed oldOwner, address indexed newOwner);\n\n    modifier onlyOwner() {\n        require(msg.sender == owner, \"DonateVault: not owner\");\n        _;\n    }\n\n    constructor(address _owner) {\n        owner = _owner == address(0) ? msg.sender : _owner;\n    }\n\n    /// @notice Gửi donate kèm lời nhắn. Tiền được giữ trong contract cho tới khi owner rút.\n    function donate(string calldata _message) external payable {\n        require(msg.value > 0, \"DonateVault: amount must be > 0\");\n        require(bytes(_message).length <= 280, \"DonateVault: message too long\");\n\n        donations.push(\n            Donation({\n                donor: msg.sender,\n                amount: msg.value,\n                message: _message,\n                timestamp: block.timestamp\n            })\n        );\n        totalDonated += msg.value;\n\n        emit DonationReceived(msg.sender, msg.value, _message, block.timestamp);\n    }\n\n    /// @notice Nhận thẳng ETH gửi tới contract (không gọi hàm donate) và coi như donate không lời nhắn.\n    receive() external payable {\n        donations.push(\n            Donation({\n                donor: msg.sender,\n                amount: msg.value,\n                message: \"\",\n                timestamp: block.timestamp\n            })\n        );\n        totalDonated += msg.value;\n        emit DonationReceived(msg.sender, msg.value, \"\", block.timestamp);\n    }\n\n    function getDonationCount() external view returns (uint256) {\n        return donations.length;\n    }\n\n    /// @notice Lấy 1 donate theo index (0 = donate đầu tiên).\n    function getDonation(uint256 index)\n        external\n        view\n        returns (address donor, uint256 amount, string memory message, uint256 timestamp)\n    {\n        require(index < donations.length, \"DonateVault: out of range\");\n        Donation storage d = donations[index];\n        return (d.donor, d.amount, d.message, d.timestamp);\n    }\n\n    /// @notice Lấy 1 trang donate, mới nhất trước, để hiển thị realtime trên web.\n    /// @param offset Số donate mới nhất đã bỏ qua (0 = bắt đầu từ donate mới nhất).\n    /// @param limit Số lượng donate muốn lấy tối đa.\n    function getDonations(uint256 offset, uint256 limit)\n        external\n        view\n        returns (\n            address[] memory donors,\n            uint256[] memory amounts,\n            string[] memory messages,\n            uint256[] memory timestamps\n        )\n    {\n        uint256 total = donations.length;\n        if (offset >= total) {\n            return (new address[](0), new uint256[](0), new string[](0), new uint256[](0));\n        }\n\n        uint256 remaining = total - offset;\n        uint256 count = remaining < limit ? remaining : limit;\n\n        donors = new address[](count);\n        amounts = new uint256[](count);\n        messages = new string[](count);\n        timestamps = new uint256[](count);\n\n        for (uint256 i = 0; i < count; i++) {\n            Donation storage d = donations[total - 1 - offset - i];\n            donors[i] = d.donor;\n            amounts[i] = d.amount;\n            messages[i] = d.message;\n            timestamps[i] = d.timestamp;\n        }\n    }\n\n    function contractBalance() external view returns (uint256) {\n        return address(this).balance;\n    }\n\n    /// @notice Chủ trang rút toàn bộ ETH đã donate về ví của mình.\n    function withdraw() external onlyOwner {\n        uint256 balance = address(this).balance;\n        require(balance > 0, \"DonateVault: nothing to withdraw\");\n        (bool ok, ) = payable(owner).call{value: balance}(\"\");\n        require(ok, \"DonateVault: withdraw failed\");\n        emit Withdrawn(owner, balance, block.timestamp);\n    }\n\n    function setOwner(address _newOwner) external onlyOwner {\n        require(_newOwner != address(0), \"DonateVault: zero address\");\n        emit OwnerChanged(owner, _newOwner);\n        owner = _newOwner;\n    }\n}\n"
+      }
+    }
+  }
+}

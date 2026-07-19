@@ -8,6 +8,7 @@ import ViewProfile from './components/ViewProfile.jsx';
 import SendCV from './components/SendCV.jsx';
 import About from './components/About.jsx';
 import ViewCV from './components/ViewCV.jsx';
+import Donate from './components/Donate.jsx';
 import './App.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/sendcv" element={<SendCV />} />
             <Route path="/aboutpage" element={<About />} />
             <Route path="/viewcv" element={<ViewCV />} />
+            <Route path="/donate" element={<Donate />} />
           </Route>
         </Routes>
       </Router>

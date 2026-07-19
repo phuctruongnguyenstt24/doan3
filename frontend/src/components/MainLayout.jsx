@@ -9,8 +9,8 @@ const MainLayout = () => {
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/aboutpage', isButton: true },
-    
     { name: 'Contact', path: '/viewprofile' },
+     { name: 'Donate', path: '/donate' },
   ];
 
   const handleProfileUpload = () => {
