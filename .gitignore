@@ -1,0 +1,21 @@
+# Env & secrets - TOÀN BỘ project
+.env
+**/.env
+!**/.env.example
+
+*.pem
+*.key
+secrets.json
+wallet.json
+
+# Node
+node_modules/
+**/node_modules/
+
+# Blockchain build artifacts
+blockchain/artifacts/
+blockchain/cache/
+
+# Frontend build
+frontend/build/
+frontend/dist/
