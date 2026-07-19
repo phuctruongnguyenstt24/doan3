@@ -9,9 +9,7 @@ const MainLayout = () => {
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/aboutpage', isButton: true },
-    { name: 'Portfolio', path: '#portfolio' },
-    { name: 'Skills', path: '#skills' },
-    { name: 'Projects', path: '#projects' },
+    
     { name: 'Contact', path: '/viewprofile' },
   ];
 
