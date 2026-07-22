@@ -233,4 +233,19 @@ function SendCV() {
   )
 }
 
+/*
+Lưu ý: 
+SendCV.jsx không mã hóa gì cả.
+Dữ liệu được gửi plain text hoàn toàn:
+Người dùng nhập form
+        ↓
+profileService.createOrUpdateProfile({ fullName, bio, email, phone, ... })
+        ↓
+contract.createOrUpdateProfile("Nguyễn Văn A", "dream", "nhan@gmail.com", ...)
+        ↓
+Lưu thẳng lên blockchain Sepolia dưới dạng chuỗi gốc
+Nghĩa là ai có địa chỉ ví đều getProfile(address) và đọc được toàn bộ thông tin — 
+đúng với mục đích thiết kế của dự án là "CV công khai trên blockchain", không cần bảo mật ẩn danh.
+*/
+
 export default SendCV
