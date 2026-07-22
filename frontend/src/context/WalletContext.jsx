@@ -27,8 +27,8 @@ export const useWallet = () => {
 };
 //quản lý toàn bộ trạng thái ví.và export ra để coponent khác dùng (Ví mặc định sẽ chưa có gì hết)
 /*
-Provider → Chỉ đọc dữ liệu từ blockchain.
-Signer → Đọc + ghi dữ liệu (gửi transaction, ký message, gọi hàm thay đổi dữ liệu). 
+Provider ➜ dùng để đọc dữ liệu từ Blockchain. (VD: Block, Balance, transaction, hàm view/pure...).
+Signer ➜ Đại diện cho tài khoản người dùng, có thể ký message, ký và gửi Transaction. ( Vì Signer ở đây được gắn với Provider nên cũng có thể đọc dữ liệu từ Blockchain.)
 */
 export const WalletProvider = ({ children }) => {
   const [account, setAccount]       = useState(null);
